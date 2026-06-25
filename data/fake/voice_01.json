@@ -1,0 +1,13 @@
+{
+  "Metadata": {
+    "Offername": "Voice Promo 01",
+    "Offer_id": 1,
+    "Payment_type": "prepaid",
+    "segment": "none",
+    "expiry_date": "2026-12-31",
+    "effective_date": "2026-01-01"
+  },
+  "Service": {
+    "Voice": "Khuyến mại cuộc gọi nội mạng 1 đồng/giây"
+  }
+}
