@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from langfuse import get_client
 from langgraph.graph import END, START, StateGraph
 
 from src.agents.router_agent import RouterAgent
@@ -19,8 +20,32 @@ class PolicyWorkflow:
         return graph.compile()
 
     def _router_node(self, state: PolicyState):
-        routing_result = self.router_agent.route(state.business_requirement)
-        return {"detected_services": routing_result.detected_services}
+        langfuse = get_client()
+        with langfuse.start_as_current_observation(
+            as_type="span",
+            name="router-node",
+            input={"business_requirement": state.business_requirement},
+        ) as span:
+            routing_result = self.router_agent.route(state.business_requirement)
+            output = {"detected_services": routing_result.detected_services}
+            span.update(output=output)
+            return output
 
     def run(self, state: PolicyState):
-        return self.app.invoke(state)
+        langfuse = get_client()
+        with langfuse.start_as_current_observation(
+            as_type="span",
+            name="policy-workflow-run",
+            input={
+                "business_requirement": state.business_requirement,
+                "graph_structure": list(self.app.get_graph().nodes.keys()),
+            },
+        ) as span:
+            result = self.app.invoke(state)
+            detected_services = (
+                result["detected_services"]
+                if isinstance(result, dict)
+                else result.detected_services
+            )
+            span.update(output={"detected_services": detected_services})
+            return result

@@ -7,6 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi>=0.138.0",
     "langchain-core>=1.4.8",
+    "langfuse>=4.11.0",
     "langgraph>=1.2.6",
     "openai>=2.44.0",
     "pydantic>=2.13.4",
